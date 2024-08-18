@@ -1,15 +1,18 @@
+import { SettingsIcon, SlidersVertical, XIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
+import { Label } from "~/components/Label"
 import { Switch } from "~/components/Switch"
 
 import "./styles.css"
 
 function IndexPopup() {
-  const [message, setMessage] = useState("")
   const [isEnabled, setIsEnabled] = useState(false)
+  const [showOptions, setShowOptions] = useState(false)
+  const [hidePanelSideMargin, setHidePanelSideMargin] = useState(false)
+  const [fixTrueDarkTheme, setFixTrueDarkTheme] = useState(false)
 
   useEffect(() => {
-    // Load Inter font
     const link = document.createElement("link")
     link.href =
       "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
@@ -53,19 +56,70 @@ function IndexPopup() {
     setIsEnabled(checked)
   }
 
+  const handleHidePanelSideMarginChange = (checked: boolean) => {
+    setHidePanelSideMargin(checked)
+    // TODO: Implement logic to save this setting
+  }
+
+  const handleFixTrueDarkThemeChange = (checked: boolean) => {
+    setFixTrueDarkTheme(checked)
+    // TODO: Implement logic to save this setting
+  }
+
   return (
-    <section className="dark bg-background text-primary w-[200px] h-[180px] p-4 space-y-4 flex justify-between items-end font-['Inter',sans-serif]">
-      <div className="flex flex-col items-left -mb-1">
-        <h2 className="text-lg font-medium">Make</h2>
-        <h2 className="text-lg font-medium">Figma</h2>
-        <h2 className="text-lg font-medium">Great</h2>
-        <h2 className="text-lg font-medium">Again</h2>
-      </div>
-      <Switch
-        checked={isEnabled}
-        onCheckedChange={handleToggleStyles}
-        id="make-figma-great-again"></Switch>
-      {/* {message && <p>{message}</p>} */}
+    <section className="dark relative bg-background text-muted-foreground w-[260px] h-[240px] p-4 space-y-4 flex flex-col justify-center items-center font-['Inter',sans-serif]">
+      {!showOptions ? (
+        <>
+          <Switch
+            checked={isEnabled}
+            onCheckedChange={handleToggleStyles}
+            id="make-figma-great-again"
+          />
+          <div className="absolute bottom-4 w-full flex justify-center space-x-1">
+            <h2 className="text-sm">Make</h2>
+            <h2 className="text-sm italic">Figma</h2>
+            <h2 className="text-sm font-semibold">Great</h2>
+            <h2 className="text-sm underline">Again</h2>
+          </div>
+          <div
+            className="absolute top-[0px] p-1 right-4 flex justify-center items-center cursor-pointer"
+            onClick={() => setShowOptions(true)}>
+            <SlidersVertical className="w-4 h-4" />
+          </div>
+        </>
+      ) : (
+        <div className="w-full h-full flex flex-col space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-medium text-base">Options</h2>
+            <XIcon
+              className="w-4 h-4 text-muted-foreground cursor-pointer"
+              onClick={() => setShowOptions(false)}
+            />
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="hide-panel-side-margin"
+                checked={hidePanelSideMargin}
+                onCheckedChange={handleHidePanelSideMarginChange}
+              />
+              <Label htmlFor="hide-panel-side-margin" className="text-sm">
+                Hide panel side margin
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="fix-true-dark-theme"
+                checked={fixTrueDarkTheme}
+                onCheckedChange={handleFixTrueDarkThemeChange}
+              />
+              <Label htmlFor="fix-true-dark-theme" className="text-sm">
+                Fix true dark theme
+              </Label>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
