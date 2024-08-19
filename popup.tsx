@@ -1,16 +1,25 @@
 import { SettingsIcon, SlidersVertical, XIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
+import { useStorage } from "@plasmohq/storage/hook"
+
 import { Label } from "~/components/Label"
 import { Switch } from "~/components/Switch"
 
 import "./styles.css"
 
 function IndexPopup() {
-  const [isEnabled, setIsEnabled] = useState(false)
+  const [isEnabled, setIsEnabled] = useStorage("isEnabled", false)
   const [showOptions, setShowOptions] = useState(false)
-  const [hidePanelSideMargin, setHidePanelSideMargin] = useState(false)
-  const [fixTrueDarkTheme, setFixTrueDarkTheme] = useState(false)
+  const [hidePanelSideMargin, setHidePanelSideMargin] = useStorage(
+    "hidePanelSideMargin",
+    true
+  )
+  const [fixTrueDarkTheme, setFixTrueDarkTheme] = useStorage(
+    "fixTrueDarkTheme",
+    true
+  )
+  const [message, setMessage] = useState("")
 
   useEffect(() => {
     const link = document.createElement("link")
@@ -18,52 +27,54 @@ function IndexPopup() {
       "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
     link.rel = "stylesheet"
     document.head.appendChild(link)
+  }, [])
 
+  const sendMessage = (action: string, settings?: object) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0]
       if (activeTab.id) {
         chrome.tabs.sendMessage(
           activeTab.id,
-          { action: "getState" },
+          { action, settings },
           (response) => {
-            if (!chrome.runtime.lastError && response) {
-              setIsEnabled(response.isEnabled)
+            if (chrome.runtime.lastError) {
+              setMessage("Error: " + chrome.runtime.lastError.message)
+            } else {
+              setMessage(response || `${action} completed successfully!`)
             }
           }
         )
-      }
-    })
-  }, [])
-
-  const sendMessage = (action: string) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0]
-      if (activeTab.id) {
-        chrome.tabs.sendMessage(activeTab.id, { action }, (response) => {
-          if (chrome.runtime.lastError) {
-            setMessage("Error: " + chrome.runtime.lastError.message)
-          } else {
-            setMessage(response || `${action} completed successfully!`)
-          }
-        })
       }
     })
   }
 
   const handleToggleStyles = (checked: boolean) => {
     const action = checked ? "applyStyles" : "removeStyles"
-    sendMessage(action)
+    sendMessage(action, {
+      hidePanelSideMargin,
+      fixTrueDarkTheme
+    })
     setIsEnabled(checked)
   }
 
   const handleHidePanelSideMarginChange = (checked: boolean) => {
     setHidePanelSideMargin(checked)
-    // TODO: Implement logic to save this setting
+    if (isEnabled) {
+      sendMessage("updateStyles", {
+        hidePanelSideMargin: checked,
+        fixTrueDarkTheme
+      })
+    }
   }
 
   const handleFixTrueDarkThemeChange = (checked: boolean) => {
     setFixTrueDarkTheme(checked)
-    // TODO: Implement logic to save this setting
+    if (isEnabled) {
+      sendMessage("updateStyles", {
+        hidePanelSideMargin,
+        fixTrueDarkTheme: checked
+      })
+    }
   }
 
   return (

@@ -12,6 +12,11 @@ export const config: PlasmoCSConfig = {
   matches: ["https://www.figma.com/*"]
 }
 
+interface UserSettings {
+  hidePanelSideMargin: boolean
+  fixTrueDarkTheme: boolean
+}
+
 const styleConfigs = [
   {
     selector:
@@ -20,7 +25,8 @@ const styleConfigs = [
       top: 0 !important;
       left: 0 !important;
       bottom: 0 !important;
-    `
+    `,
+    setting: "hidePanelSideMargin"
   },
   {
     selector: "[data-fpl-version=ui3] .properties_panel--panelPosition--oppQ8",
@@ -28,44 +34,51 @@ const styleConfigs = [
       top: 0 !important;
       right: 0 !important;
       bottom: 0 !important;
-    `
+    `,
+    setting: "hidePanelSideMargin"
   },
   {
     selector:
       "[data-fpl-version=ui3] .properties_panel--drillDownContainer--VaNDa",
     styles: `
       right: 0 !important;
-    `
+    `,
+    setting: "hidePanelSideMargin"
   },
   {
     selector: "[data-fpl-version=ui3] .left_panel_container--panel--ILPCV",
     styles: `
       border-radius: 0 !important;
-    `
+    `,
+    setting: "hidePanelSideMargin"
   },
   {
     selector: "[data-fpl-version=ui3] .properties_panel--panelContainer--cKjqh",
     styles: `
       border-radius: 0 !important;
-    `
+    `,
+    setting: "hidePanelSideMargin"
   },
   {
     selector: "[data-preferred-theme=dark]",
     styles: `
       --color-bg: var(--ramp-grey-1000) !important;
       --color-border: var(--ramp-grey-800) !important;
-    `
+    `,
+    setting: "fixTrueDarkTheme"
   }
 ]
 
-function applyStyles() {
+function applyStyles(settings: UserSettings) {
   styleConfigs.forEach((config) => {
-    const elements = document.querySelectorAll(config.selector)
-    elements.forEach((element) => {
-      element.setAttribute("style", config.styles)
-    })
+    if (settings[config.setting]) {
+      const elements = document.querySelectorAll(config.selector)
+      elements.forEach((element) => {
+        element.setAttribute("style", config.styles)
+      })
+    }
   })
-  console.log("Styles applied:", styleConfigs.length)
+  console.log("Styles applied based on settings:", settings)
 }
 
 function removeStyles() {
@@ -75,7 +88,7 @@ function removeStyles() {
       element.removeAttribute("style")
     })
   })
-  console.log("Styles removed:", styleConfigs.length)
+  console.log("All styles removed")
 }
 
 const ConfettiComponent = ({ onComplete }: ConfettiComponentProps) => {
@@ -103,7 +116,7 @@ const ConfettiComponent = ({ onComplete }: ConfettiComponentProps) => {
   )
 }
 
-function addConfettiAndApplyStyles() {
+function addConfettiAndApplyStyles(settings: UserSettings) {
   const confettiContainer = document.createElement("div")
   confettiContainer.id = "figma-confetti-container"
   document.body.appendChild(confettiContainer)
@@ -111,7 +124,7 @@ function addConfettiAndApplyStyles() {
   const handleConfettiComplete = () => {
     root.unmount()
     confettiContainer.remove()
-    applyStyles()
+    applyStyles(settings)
   }
 
   const root = createRoot(confettiContainer)
@@ -119,16 +132,21 @@ function addConfettiAndApplyStyles() {
 }
 
 // Update the global functions
-;(window as any).applyFigmaStyles = addConfettiAndApplyStyles
+;(window as any).applyFigmaStyles = (settings: UserSettings) =>
+  addConfettiAndApplyStyles(settings)
 ;(window as any).removeFigmaStyles = removeStyles
+;(window as any).updateFigmaStyles = applyStyles
 
 // Update the message listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "applyStyles") {
-    ;(window as any).applyFigmaStyles()
+    ;(window as any).applyFigmaStyles(request.settings)
     sendResponse("Confetti added, styles will be applied shortly!")
   } else if (request.action === "removeStyles") {
     ;(window as any).removeFigmaStyles()
     sendResponse("Styles removed successfully!")
+  } else if (request.action === "updateStyles") {
+    ;(window as any).updateFigmaStyles(request.settings)
+    sendResponse("Styles updated successfully!")
   }
 })
