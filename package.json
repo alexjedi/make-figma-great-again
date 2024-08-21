@@ -1,6 +1,6 @@
 {
   "name": "make-figma-great-again",
-  "displayName": "Make figma great again",
+  "displayName": "Make Figma Great Again",
   "version": "0.0.1",
   "description": "fix ui3 figma today keeps a doctor away",
   "author": "Alex Shevliakov (@alexjedi)",
@@ -37,13 +37,5 @@
     "prettier": "3.2.4",
     "tailwindcss": "^3.4.10",
     "typescript": "5.3.3"
-  },
-  "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ],
-    "permissions": [
-      "tabs"
-    ]
   }
 }

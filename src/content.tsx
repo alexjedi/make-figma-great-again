@@ -20,7 +20,7 @@ interface UserSettings {
 const styleConfigs = [
   {
     selector:
-      '[data-fpl-version="ui3"] .left_panel_positioner--leftPanelPositioner--8Yehe',
+      '[data-fpl-version="ui3"] [class*="left_panel_positioner--leftPanelPositioner"]',
     styles: `
       top: 0 !important;
       left: 0 !important;
@@ -29,7 +29,8 @@ const styleConfigs = [
     setting: "hidePanelSideMargin"
   },
   {
-    selector: "[data-fpl-version=ui3] .properties_panel--panelPosition--oppQ8",
+    selector:
+      "[data-fpl-version=ui3] [class*='properties_panel--panelPosition']",
     styles: `
       top: 0 !important;
       right: 0 !important;
@@ -39,21 +40,22 @@ const styleConfigs = [
   },
   {
     selector:
-      "[data-fpl-version=ui3] .properties_panel--drillDownContainer--VaNDa",
+      "[data-fpl-version=ui3] [class*='properties_panel--drillDownContainer']",
     styles: `
       right: 0 !important;
     `,
     setting: "hidePanelSideMargin"
   },
   {
-    selector: "[data-fpl-version=ui3] .left_panel_container--panel--ILPCV",
+    selector: "[data-fpl-version=ui3] [class*='left_panel_container--panel']",
     styles: `
       border-radius: 0 !important;
     `,
     setting: "hidePanelSideMargin"
   },
   {
-    selector: "[data-fpl-version=ui3] .properties_panel--panelContainer--cKjqh",
+    selector:
+      "[data-fpl-version=ui3] [class*='properties_panel--panelContainer']",
     styles: `
       border-radius: 0 !important;
     `,
